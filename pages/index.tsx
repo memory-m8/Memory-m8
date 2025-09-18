@@ -1,8 +1,6 @@
-// pages/index.tsx (Next.js 13/14 with Tailwind CSS)
+// pages/index.tsx (Next.js 13/14 + Tailwind)
 // Memory M8 — medical-style landing page
-//
-// SSR favicon fix: we add <link rel="icon"> client-side only to avoid
-// "Cannot read properties of null (reading '_')" in some environments.
+// SSR favicon fix: add <link rel="icon"> client-side only.
 
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
@@ -28,12 +26,12 @@ export default function Home() {
   const router = useRouter()
 
   // Flash banner from redirects (/?subscribed=1 etc.)
-  const [flash, setFlash] = useState<{ type: 'subscribed' | 'pledged' | null }>({ type: null })
+  const [flash, setFlash] = useState<'subscribed' | 'pledged' | null>(null)
   useEffect(() => {
     if (!router.isReady) return
     const { subscribed, pledged } = router.query
-    if (subscribed === '1') setFlash({ type: 'subscribed' })
-    else if (pledged === '1') setFlash({ type: 'pledged' })
+    if (subscribed === '1') setFlash('subscribed')
+    else if (pledged === '1') setFlash('pledged')
   }, [router.isReady, router.query])
 
   return (
@@ -61,30 +59,31 @@ export default function Home() {
       {/* Announcement bar */}
       <div className="bg-sky-900 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-2 text-sm text-center">
-          <strong>Beta testing</strong> starts next week — join the waitlist below.{" "}
+          <strong>Beta testing</strong> starts next week — join the waitlist below.
           <span className="inline-flex items-center gap-2 ml-3 align-middle">
-            <img src="/google-play-badge.svg" alt="" className="h-5" />
+            <img src="/google-play-badge.png" alt="Google Play" className="h-5" />
             <span className="opacity-90">Coming soon to Google Play</span>
           </span>
         </div>
       </div>
 
       {/* Flash (subscribe / sponsor-notify) */}
-      {flash.type && (
+      {flash && (
         <div className="bg-emerald-50 border-b border-emerald-200">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 flex items-start justify-between gap-4">
             <p className="text-sm text-emerald-900">
-              {flash.type === 'subscribed' &&
+              {flash === 'subscribed' &&
                 'Thanks! Please check your email and click the confirmation link to complete your subscription.'}
-              {flash.type === 'pledged' && 'Thank you — we’ll notify you as soon as sponsoring is available.'}
+              {flash === 'pledged' && 'Thank you — we’ll notify you as soon as sponsoring is available.'}
             </p>
-            <button onClick={() => setFlash({ type: null })} className="text-emerald-900/70 hover:text-emerald-900 text-sm">
+            <button onClick={() => setFlash(null)} className="text-emerald-900/70 hover:text-emerald-900 text-sm">
               Dismiss
             </button>
           </div>
         </div>
       )}
 
+      {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70 sticky top-0 z-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <a href="#" className="flex items-center gap-3">
@@ -113,7 +112,12 @@ export default function Home() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
             <div className="grid lg:grid-cols-2 items-center gap-10">
               <div>
-                <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-slate-900">Welcome to Memory M8</h1>
+                <div className="flex items-center gap-4">
+                  <img src="/logo-memorym8.png" alt="Memory M8 logo" className="h-12 w-12" />
+                  <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-slate-900">
+                    Welcome to Memory M8
+                  </h1>
+                </div>
                 <p className="mt-5 text-lg text-slate-700">Companionship, Dignity &amp; Support — Powered by AI.</p>
                 <p className="mt-4 text-slate-600">
                   Memory M8 reassures families, supports carers, and prioritises nurse attention for those living with memory loss.
@@ -133,9 +137,9 @@ export default function Home() {
                   <span className="px-3 py-1 rounded-full bg-white border">Zero-knowledge by default</span>
                 </div>
               </div>
+
               <div className="relative">
-                <div className="aspect-[4/3] w-full rounded-2xl bg-slate-200 shadow-inner flex items-center justify-center overflow-hidden">
-                  {/* Hero image slot */}
+                <div className="aspect-[4/3] w-full rounded-2xl bg-slate-200 shadow-inner overflow-hidden">
                   <img src="/hero.jpg" alt="Memory M8 companion and carer app screens" className="h-full w-full object-cover" />
                 </div>
                 <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl shadow p-4 w-64">
@@ -147,46 +151,46 @@ export default function Home() {
           </div>
         </section>
 
-        {/* How it helps */}
+        {/* How it helps — VERTICALLY STACKED & LARGE */}
         <section id="families" className="py-20 bg-white">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-semibold text-slate-900">How Memory M8 helps</h2>
-            <p className="mt-3 text-slate-600 max-w-3xl">
+            <p className="mt-3 text-slate-600">
               Designed with families, care homes and hospitals in mind — simple, human, and clinically thoughtful.
             </p>
 
-            {/* Side-by-side on md+ */}
-            <div className="mt-10 grid md:grid-cols-3 gap-6">
-              <article className="rounded-2xl border p-6 bg-white">
-                <div className="aspect-video rounded-xl bg-slate-100 flex items-center justify-center mb-4 overflow-hidden">
+            <div className="mt-10 space-y-10">
+              <article className="rounded-2xl border p-6 bg-white" id="families-card">
+                <div className="aspect-[16/9] rounded-xl bg-slate-100 overflow-hidden mb-5">
                   <img src="/families.jpg" alt="Reassurance at home with subtle phone prompt and TV reminder" className="h-full w-full object-cover" />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-900">For Families</h3>
-                <p className="mt-2 text-slate-600">
+                <h3 className="text-2xl font-semibold text-slate-900">For Families</h3>
+                <p className="mt-3 text-slate-600 text-lg">
                   Check a loved one’s mood at a glance and use <strong>Whisper Mode</strong> for calm cues that don’t startle.
-                  The companion keeps conversation familiar by drawing on favourite topics, photos and memories. Over time it learns what
-                  settles anxiety, reminds about TV/radio at the right moment, switches to the correct channel at 7:30pm, and can dim lights for bedtime.
+                  The companion keeps conversation familiar by drawing on favourite topics, photos and memories.
+                  Over time it learns what settles anxiety, reminds about TV/radio at the right moment,
+                  switches to the correct channel at 7:30pm, and can dim lights for bedtime.
                 </p>
               </article>
 
-              <article id="care" className="rounded-2xl border p-6 bg-white">
-                <div className="aspect-video rounded-xl bg-slate-100 flex items-center justify-center mb-4 overflow-hidden">
+              <article className="rounded-2xl border p-6 bg-white" id="care">
+                <div className="aspect-[16/9] rounded-xl bg-slate-100 overflow-hidden mb-5">
                   <img src="/care-homes.jpg" alt="Care home dashboard highlighting residents who need attention" className="h-full w-full object-cover" />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-900">For Care Homes</h3>
-                <p className="mt-2 text-slate-600">
+                <h3 className="text-2xl font-semibold text-slate-900">For Care Homes</h3>
+                <p className="mt-3 text-slate-600 text-lg">
                   Resident wellbeing dashboards surface who needs attention first, reducing anxiety-driven callouts so staff can focus
                   where it matters most. Alerts flag when reassurance or intervention is needed — in a room or during activities —
                   balancing compassionate human care with real-time AI support that preserves dignity and reduces disruption.
                 </p>
               </article>
 
-              <article id="hospitals" className="rounded-2xl border p-6 bg-white">
-                <div className="aspect-video rounded-xl bg-slate-100 flex items-center justify-center mb-4 overflow-hidden">
+              <article className="rounded-2xl border p-6 bg-white" id="hospitals">
+                <div className="aspect-[16/9] rounded-xl bg-slate-100 overflow-hidden mb-5">
                   <img src="/hospital-wards.jpg" alt="Nurse station ward view with prioritised patient alerts and multilingual reassurance" className="h-full w-full object-cover" />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-900">For Hospital Wards</h3>
-                <p className="mt-2 text-slate-600">
+                <h3 className="text-2xl font-semibold text-slate-900">For Hospital Wards</h3>
+                <p className="mt-3 text-slate-600 text-lg">
                   Real-time ward views flag mood change, confusion or distress. Nurse prioritisation directs attention to patients who need it most,
                   supporting efficient, compassionate care. Multilingual reassurance helps overcome language barriers and delivers calm,
                   personalised messages that keep patients grounded in busy clinical environments.
@@ -364,7 +368,6 @@ export default function Home() {
                 <li>Memory M8 Ltd (England &amp; Wales)</li>
                 <li>Company No: <span className="font-mono">16711676</span></li>
                 <li>ICO Registration: <span className="font-mono">ZB986177</span></li>
-                <li>VAT: <span className="font-mono">[IF APPLICABLE]</span></li>
               </ul>
             </div>
 
@@ -372,9 +375,12 @@ export default function Home() {
               <h4 className="text-sm font-semibold text-slate-900">Contact</h4>
               <ul className="mt-3 space-y-2 text-sm text-slate-600">
                 <li>
-                  Email:{" "}
-                  <a className="hover:underline" href="mailto:info@memorym8.com">info@memorym8.com</a> ·{" "}
-                  <a className="hover:underline" href="mailto:join@memorym8.com">join@memorym8.com</a> ·{" "}
+                  Email:
+                  {' '}
+                  <a className="hover:underline" href="mailto:info@memorym8.com">info@memorym8.com</a>
+                  {' · '}
+                  <a className="hover:underline" href="mailto:join@memorym8.com">join@memorym8.com</a>
+                  {' · '}
                   <a className="hover:underline" href="mailto:sponsor@memorym8.com">sponsor@memorym8.com</a>
                 </li>
                 <li>WhatsApp: <a className="hover:underline" href="https://wa.me/447496250436">+44 7496 250436</a></li>
@@ -401,7 +407,7 @@ const features = [
   { title: 'Dignity-first reassurance', text: 'Language and prompts tuned for adults — never infantilising.' },
   { title: 'Nurse prioritisation', text: 'Direct attention to where it’s needed most across wards.' },
   { title: 'Multilingual companion', text: 'Welsh, Polish, Urdu, Punjabi, Arabic, Romanian, Spanish and more.' },
-  { title: 'Smart integrations', text: 'TV/radio reminders (e.g., switch to the right channel at 7:30), Alexa, lights.' },
+  { title: 'Smart integrations', text: 'TV/radio reminders (e.g., switch to the correct channel at 7:30), Alexa, lights.' },
   { title: 'Zero-knowledge privacy', text: 'Patient-side data is end-to-end encrypted; we can’t read your conversations.' },
 ]
 
@@ -410,5 +416,8 @@ const faq = [
   { q: 'How does it reduce anxiety for families?', a: 'Glanceable wellbeing, Whisper Mode for calm cues, and quick voice/video reassurance so you can stay focused at work.' },
   { q: 'How does it help care homes?', a: 'Dashboards surface who needs attention first, reducing anxiety-driven callouts and enabling more meaningful, timely care.' },
   { q: 'Does this work on hospital wards?', a: 'Yes. Real-time ward views flag mood/confusion to support nurse prioritisation while preserving dignity.' },
-  { q: 'Can it control devices and media?', a: 'Yes — reminders for favourite TV/radio, auto-switching to the correct channel, smart lights and gentle bedtime routines.' },
+  { q: 'Which languages are supported?', a: 'Welsh and English at launch; expanding to Polish, Urdu, Punjabi, Arabic, Romanian, Spanish and more.' },
+  { q: 'What is Whisper Mode?', a: 'A calming, low-volume cue that reassures without startling — ideal for confusion or night-time disorientation.' },
+  { q: 'Can it remind about TV shows or control devices?', a: 'Yes — reminders for favourite TV/radio, auto-switching to the correct channel, smart lights and gentle bedtime routines.' },
+  { q: 'How does the AI learn safely?', a: 'It adapts to patterns in routines, mood and responses, keeping a minimal profile used only for reassurance and reminders.' },
 ]
