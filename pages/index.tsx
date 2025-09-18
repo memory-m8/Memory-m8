@@ -56,14 +56,25 @@ export default function Home() {
 
       <FaviconManager />
 
-      {/* Announcement bar */}
-      <div className="bg-sky-900 text-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-2 text-sm text-center">
-          <strong>Beta testing</strong> starts next week — join the waitlist below.
-          <span className="inline-flex items-center gap-2 ml-3 align-middle">
-            <img src="/google-play-badge.png" alt="Google Play" className="h-5" />
-            <span className="opacity-90">Coming soon to Google Play</span>
-          </span>
+      {/* Announcement bar — bigger + eye-catching */}
+      <div className="bg-gradient-to-r from-sky-700 via-cyan-600 to-teal-600 text-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-3 text-base font-medium">
+            <span className="inline-flex items-center gap-2">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-60" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white" />
+              </span>
+              <strong className="tracking-wide">Beta testing</strong> starts next week — join the waitlist below
+            </span>
+
+            <span className="hidden md:inline-block opacity-70">•</span>
+
+            <span className="inline-flex items-center gap-2">
+              <img src="/google-play-badge.png" alt="Google Play" className="h-7 md:h-8" />
+              <span className="opacity-95">Coming soon to Google Play</span>
+            </span>
+          </div>
         </div>
       </div>
 
@@ -140,7 +151,14 @@ export default function Home() {
 
               <div className="relative">
                 <div className="aspect-[4/3] w-full rounded-2xl bg-slate-200 shadow-inner overflow-hidden">
-                  <img src="/hero.jpg" alt="Memory M8 companion and carer app screens" className="h-full w-full object-cover" />
+                  <img
+                    src="/hero.jpg"
+                    alt="Memory M8 companion and carer app screens"
+                    className="h-full w-full object-cover"
+                    loading="eager"
+                    decoding="async"
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                  />
                 </div>
                 <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl shadow p-4 w-64">
                   <p className="text-sm text-slate-700">“I can focus at work without worrying. If Mum needs reassurance, I get a gentle prompt and can send a quick voice note.”</p>
@@ -162,7 +180,14 @@ export default function Home() {
             <div className="mt-10 space-y-10">
               <article className="rounded-2xl border p-6 bg-white" id="families-card">
                 <div className="aspect-[16/9] rounded-xl bg-slate-100 overflow-hidden mb-5">
-                  <img src="/families.jpg" alt="Reassurance at home with subtle phone prompt and TV reminder" className="h-full w-full object-cover" />
+                  <img
+                    src="/families.jpg"
+                    alt="Reassurance at home with subtle phone prompt and TV reminder"
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                    sizes="(min-width: 768px) 768px, 100vw"
+                  />
                 </div>
                 <h3 className="text-2xl font-semibold text-slate-900">For Families</h3>
                 <p className="mt-3 text-slate-600 text-lg">
@@ -175,7 +200,14 @@ export default function Home() {
 
               <article className="rounded-2xl border p-6 bg-white" id="care">
                 <div className="aspect-[16/9] rounded-xl bg-slate-100 overflow-hidden mb-5">
-                  <img src="/care-homes.jpg" alt="Care home dashboard highlighting residents who need attention" className="h-full w-full object-cover" />
+                  <img
+                    src="/care-homes.jpg"
+                    alt="Care home dashboard highlighting residents who need attention"
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                    sizes="(min-width: 768px) 768px, 100vw"
+                  />
                 </div>
                 <h3 className="text-2xl font-semibold text-slate-900">For Care Homes</h3>
                 <p className="mt-3 text-slate-600 text-lg">
@@ -187,7 +219,14 @@ export default function Home() {
 
               <article className="rounded-2xl border p-6 bg-white" id="hospitals">
                 <div className="aspect-[16/9] rounded-xl bg-slate-100 overflow-hidden mb-5">
-                  <img src="/hospital-wards.jpg" alt="Nurse station ward view with prioritised patient alerts and multilingual reassurance" className="h-full w-full object-cover" />
+                  <img
+                    src="/hospital-wards.jpg"
+                    alt="Nurse station ward view with prioritised patient alerts and multilingual reassurance"
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                    sizes="(min-width: 768px) 768px, 100vw"
+                  />
                 </div>
                 <h3 className="text-2xl font-semibold text-slate-900">For Hospital Wards</h3>
                 <p className="mt-3 text-slate-600 text-lg">
@@ -375,12 +414,9 @@ export default function Home() {
               <h4 className="text-sm font-semibold text-slate-900">Contact</h4>
               <ul className="mt-3 space-y-2 text-sm text-slate-600">
                 <li>
-                  Email:
-                  {' '}
-                  <a className="hover:underline" href="mailto:info@memorym8.com">info@memorym8.com</a>
-                  {' · '}
-                  <a className="hover:underline" href="mailto:join@memorym8.com">join@memorym8.com</a>
-                  {' · '}
+                  Email:{' '}
+                  <a className="hover:underline" href="mailto:info@memorym8.com">info@memorym8.com</a>{' · '}
+                  <a className="hover:underline" href="mailto:join@memorym8.com">join@memorym8.com</a>{' · '}
                   <a className="hover:underline" href="mailto:sponsor@memorym8.com">sponsor@memorym8.com</a>
                 </li>
                 <li>WhatsApp: <a className="hover:underline" href="https://wa.me/447496250436">+44 7496 250436</a></li>
