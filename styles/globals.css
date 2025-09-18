@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root {
+  --mm8-teal: #0E5A6B;
+  --mm8-mint: #A7D7CF;
+  --mm8-blue: #0077b6;
+}
+a { text-decoration: none; }
