@@ -169,7 +169,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* How it helps — VERTICALLY STACKED & LARGE */}
+        {/* How it helps — vertically stacked & large */}
         <section id="families" className="py-20 bg-white">
           <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-semibold text-slate-900">How Memory M8 helps</h2>
@@ -191,10 +191,11 @@ export default function Home() {
                 </div>
                 <h3 className="text-2xl font-semibold text-slate-900">For Families</h3>
                 <p className="mt-3 text-slate-600 text-lg">
-                  Check a loved one’s mood at a glance and use <strong>Whisper Mode</strong> for calm cues that don’t startle.
-                  The companion keeps conversation familiar by drawing on favourite topics, photos and memories.
-                  Over time it learns what settles anxiety, reminds about TV/radio at the right moment,
-                  switches to the correct channel at 7:30pm, and can dim lights for bedtime.
+                  Check a loved one’s mood at a glance and use <strong>Whisper Mode</strong> for discreet cues that don’t startle — for example,
+                  quietly reminding who just walked into the room to protect dignity and ease conversation.
+                  The companion keeps chat familiar using favourite topics, photos and memories. It can also
+                  remind about preferred TV/radio and, when enabled, <strong>turn the TV on and switch to the right channel</strong>,
+                  or dim lights for a gentle bedtime routine.
                 </p>
               </article>
 
@@ -443,17 +444,17 @@ const features = [
   { title: 'Dignity-first reassurance', text: 'Language and prompts tuned for adults — never infantilising.' },
   { title: 'Nurse prioritisation', text: 'Direct attention to where it’s needed most across wards.' },
   { title: 'Multilingual companion', text: 'Welsh, Polish, Urdu, Punjabi, Arabic, Romanian, Spanish and more.' },
-  { title: 'Smart integrations', text: 'TV/radio reminders (e.g., switch to the correct channel at 7:30), Alexa, lights.' },
+  { title: 'Smart integrations', text: 'TV/radio reminders; optional control to turn on the TV and switch to the right channel; lights and routines.' },
   { title: 'Zero-knowledge privacy', text: 'Patient-side data is end-to-end encrypted; we can’t read your conversations.' },
 ]
 
 const faq = [
   { q: 'Is Memory M8 safe and private?', a: 'Yes. We follow GDPR/ICO with data minimisation and end-to-end encryption. Patient-side is zero-knowledge by default.' },
-  { q: 'How does it reduce anxiety for families?', a: 'Glanceable wellbeing, Whisper Mode for calm cues, and quick voice/video reassurance so you can stay focused at work.' },
+  { q: 'How does it reduce anxiety for families?', a: 'Glanceable wellbeing, Whisper Mode for discreet cues, and quick voice/video reassurance so you can stay focused at work.' },
   { q: 'How does it help care homes?', a: 'Dashboards surface who needs attention first, reducing anxiety-driven callouts and enabling more meaningful, timely care.' },
   { q: 'Does this work on hospital wards?', a: 'Yes. Real-time ward views flag mood/confusion to support nurse prioritisation while preserving dignity.' },
   { q: 'Which languages are supported?', a: 'Welsh and English at launch; expanding to Polish, Urdu, Punjabi, Arabic, Romanian, Spanish and more.' },
-  { q: 'What is Whisper Mode?', a: 'A calming, low-volume cue that reassures without startling — ideal for confusion or night-time disorientation.' },
-  { q: 'Can it remind about TV shows or control devices?', a: 'Yes — reminders for favourite TV/radio, auto-switching to the correct channel, smart lights and gentle bedtime routines.' },
+  { q: 'What is Whisper Mode?', a: 'A calm, low-volume prompt that discreetly reassures — including reminding who entered the room — to protect dignity without startling.' },
+  { q: 'Can it control media or devices?', a: 'Yes — reminders for favourite TV/radio and optional controls to turn on the TV and switch to the right channel, plus smart-light routines.' },
   { q: 'How does the AI learn safely?', a: 'It adapts to patterns in routines, mood and responses, keeping a minimal profile used only for reassurance and reminders.' },
 ]
