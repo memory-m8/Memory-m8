@@ -14,7 +14,7 @@ const TO_JOIN = process.env.JOIN_OPS || 'join@memorym8.com'
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT || 587),
-  secure: String(process.env.SMTP_SECURE) === 'true',
+  secure: String(process.env.SMTP_SECURE) === 'true', // true: 465, false: 587
   auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
   tls: process.env.NODE_ENV !== 'production' ? { rejectUnauthorized: false } : undefined,
 })
@@ -25,18 +25,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).end('Method Not Allowed')
   }
 
-  // Accept JSON or form-encoded bodies
-  const body = typeof req.body === 'string' ? Object.fromEntries(new URLSearchParams(req.body)) : req.body
+  // Accept JSON or x-www-form-urlencoded
+  const body =
+    typeof req.body === 'string'
+      ? Object.fromEntries(new URLSearchParams(req.body))
+      : (req.body as Record<string, string>)
   const { name = '', email = '', role = '', org = '' } = body || {}
   const debug = 'debug' in req.query
 
   if (!email) return res.status(400).json({ ok: false, error: 'Email required' })
 
-  // Sign a short-lived JWT (no server-side storage)
+  // Issue a short-lived JWT (no server storage needed)
   const token = jwt.sign({ email, name }, TOKEN_SECRET, { expiresIn: '24h' })
   const confirmUrl = `${SITE_URL}/api/confirm?token=${encodeURIComponent(token)}`
 
-  // internal heads-up
+  // Internal heads-up
   const internalInfo = await transporter.sendMail({
     from: FROM_UPDATES,
     to: TO_JOIN,
@@ -44,19 +47,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     text: `${name || 'Someone'} signed up${role ? ` as ${role}` : ''}${org ? ` (${org})` : ''}`,
   })
 
-  // user confirm email (inline logo optional)
+  // User confirmation email (template + inline logo if present)
   const logoPath = path.join(process.cwd(), 'public', 'logo-email.png')
   const tmplPath = path.join(process.cwd(), 'templates', 'confirm.html')
   const tmpl = fs.existsSync(tmplPath)
     ? fs.readFileSync(tmplPath, 'utf8')
     : `<!doctype html><meta charset="utf-8"><div style="font-family:system-ui,Segoe UI,Arial">
-        <h2>Confirm your subscription</h2>
-        <p>Hello {{name}}, thanks for signing up for Memory M8 updates.</p>
-        <p><a href="{{confirmUrl}}">Confirm my subscription</a></p>
-      </div>`
+         <h2>Confirm your subscription</h2>
+         <p>Hello {{name}}, thanks for signing up for Memory M8 updates.</p>
+         <p><a href="{{confirmUrl}}">Confirm my subscription</a></p>
+       </div>`
 
-  const html = tmpl.replace(/{{\s*name\s*}}/g, name || 'there')
-                   .replace(/{{\s*confirmUrl\s*}}/g, confirmUrl)
+  const html = tmpl
+    .replace(/{{\s*name\s*}}/g, name || 'there')
+    .replace(/{{\s*confirmUrl\s*}}/g, confirmUrl)
 
   const userInfo = await transporter.sendMail({
     from: FROM_UPDATES,
@@ -66,7 +70,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     attachments: fs.existsSync(logoPath) ? [{ filename: 'logo-email.png', path: logoPath, cid: 'mm8logo' }] : [],
   })
 
-  // Debug JSON
   if (debug) {
     return res.status(200).json({
       ok: true,
@@ -83,17 +86,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         response: userInfo.response,
         messageId: userInfo.messageId,
       },
-      envCheck: {
-        SITE_URL,
-        FROM_UPDATES,
-        TOKEN_SECRET_len: TOKEN_SECRET.length,
-      },
+      envCheck: { SITE_URL, FROM_UPDATES, TOKEN_SECRET_len: TOKEN_SECRET.length },
     })
   }
 
-  // Browser form posts -> back to home with flash
   const acceptsHTML = (req.headers.accept || '').includes('text/html')
   if (acceptsHTML) return res.redirect(303, '/?subscribed=1')
-
   return res.status(200).json({ ok: true })
 }

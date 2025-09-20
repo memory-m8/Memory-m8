@@ -4,43 +4,42 @@ import path from 'path'
 import fs from 'fs'
 
 /** ---- Mailer (dev-safe TLS; strict in prod) ---- */
-function createTransporter() {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: String(process.env.SMTP_SECURE) === 'true', // true: 465 SSL, false: 587 STARTTLS
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    tls: process.env.NODE_ENV !== 'production' ? { rejectUnauthorized: false } : undefined,
-  })
-}
-const transporter = createTransporter()
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT || 587),
+  secure: String(process.env.SMTP_SECURE) === 'true', // true: 465, false: 587
+  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+  tls: process.env.NODE_ENV !== 'production' ? { rejectUnauthorized: false } : undefined,
+})
 
 /** ---- Config ---- */
-const FROM_SPONSOR = process.env.MAIL_FROM_SPONSOR || 'Memory M8 Sponsorship <sponsor@memorym8.com>'
-const TO_SPONSOR = process.env.MAIL_TO_SPONSOR || 'sponsor@memorym8.com'
+const FROM_SPONSOR = process.env.FROM_SPONSOR || 'Memory M8 Sponsorship <sponsor@memorym8.com>'
+const TO_SPONSOR = process.env.SPONSOR_OPS || 'sponsor@memorym8.com'
 const LOGO_PATH = path.join(process.cwd(), 'public', 'logo-email.png')
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
-    res.status(405).end('Method Not Allowed')
-    return
+    return res.status(405).end('Method Not Allowed')
   }
 
-  // Accept JSON or form-encoded bodies
-  const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body
-  const { amount, email, message } = body || {}
+  // Accept JSON or x-www-form-urlencoded
+  const body =
+    typeof req.body === 'string'
+      ? Object.fromEntries(new URLSearchParams(req.body))
+      : (req.body as Record<string, string>)
+  const { amount = '', email = '', message = '' } = body || {}
 
-  if (!email || amount == null) {
-    res.status(400).json({ error: 'Email and amount required' })
-    return
+  const numeric = Number(amount)
+  if (!email || Number.isNaN(numeric)) {
+    return res.status(400).json({ ok: false, error: 'Email and valid amount required' })
   }
 
-  const num = Math.max(0, Number(amount) || 0)
+  const num = Math.max(0, numeric)
   // ~£1/day heuristic (29.99/month ≈ 1/day)
   const days = Math.round(num / (29.99 / 30))
 
-  // Internal notification
+  // Notify ops
   await transporter.sendMail({
     from: FROM_SPONSOR,
     to: TO_SPONSOR,
@@ -48,28 +47,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     text: `Donor: ${email}\nMessage: ${message || '—'}\nAmount: £${num}\nEst. days of reassurance: ${days}`,
   })
 
-  // Donor acknowledgement (CID logo)
-  const tmpl = fs.readFileSync(path.join(process.cwd(), 'templates', 'sponsor.html'), 'utf8')
-  const html = tmpl.replace(/{{amount}}/g, String(num)).replace(/{{days}}/g, String(days))
+  // Thank the donor (template + inline logo if present)
+  const tmplPath = path.join(process.cwd(), 'templates', 'sponsor.html')
+  const tmpl = fs.existsSync(tmplPath)
+    ? fs.readFileSync(tmplPath, 'utf8')
+    : `<!doctype html><meta charset="utf-8"><div style="font-family:system-ui,Segoe UI,Arial">
+         <h2>Thank you for your sponsorship pledge</h2>
+         <p>Your pledge of <strong>£{{amount}}</strong> helps us deliver calm, dignified reassurance.</p>
+         <p>That’s around <strong>{{days}}</strong> days of access for someone who needs it most.</p>
+       </div>`
+
+  const html = tmpl
+    .replace(/{{\s*amount\s*}}/g, String(num))
+    .replace(/{{\s*days\s*}}/g, String(days))
 
   await transporter.sendMail({
     from: FROM_SPONSOR,
     to: email,
     subject: 'Thank you for your sponsorship pledge',
     html,
-    attachments: [
-      { filename: 'logo-email.png', path: LOGO_PATH, cid: 'mm8logo' }, // src="cid:mm8logo"
-    ],
+    attachments: fs.existsSync(LOGO_PATH) ? [{ filename: 'logo-email.png', path: LOGO_PATH, cid: 'mm8logo' }] : [],
   })
 
-  // Redirect browsers back to home with success banner; JSON for API callers
   const acceptsHTML = (req.headers.accept || '').includes('text/html')
-  const isFormPost = (req.headers['content-type'] || '').includes('application/x-www-form-urlencoded')
-  if (acceptsHTML || isFormPost) {
-    const amountParam = encodeURIComponent(String(num))
-    res.redirect(303, `/?pledged=1&amount=${amountParam}`)
-    return
-  }
-
-  res.status(200).json({ ok: true })
+  if (acceptsHTML) return res.redirect(303, `/?pledged=1&amount=${encodeURIComponent(String(num))}`)
+  return res.status(200).json({ ok: true })
 }
