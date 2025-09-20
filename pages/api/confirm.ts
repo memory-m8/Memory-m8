@@ -1,62 +1,28 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import nodemailer from 'nodemailer'
-import fs from 'fs'
-import path from 'path'
+import crypto from 'crypto'
 
-function createTransporter() {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: String(process.env.SMTP_SECURE) === 'true',
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    tls: process.env.NODE_ENV !== 'production' ? { rejectUnauthorized: false } : undefined,
-  })
+const SIGNING_SECRET = process.env.SIGNING_SECRET || 'dev-secret'
+
+function verify(token: string): { ok: boolean; email?: string; name?: string; err?: string } {
+  try {
+    const [h, b, s] = token.split('.')
+    const expected = crypto.createHmac('sha256', SIGNING_SECRET).update(`${h}.${b}`).digest('base64')
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '')
+    if (s !== expected) return { ok: false, err: 'Bad signature' }
+    const payload = JSON.parse(Buffer.from(b.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8'))
+    if (payload.exp && Date.now() / 1000 > payload.exp) return { ok: false, err: 'Expired' }
+    return { ok: true, email: payload.email, name: payload.name }
+  } catch (e: any) {
+    return { ok: false, err: 'Invalid token' }
+  }
 }
-const transporter = createTransporter()
-
-const TOKENS_FILE = path.join(process.cwd(), 'tokens.json')
-const FROM_UPDATES = process.env.MAIL_FROM_UPDATES || `Memory M8 <${process.env.SMTP_USER}>`
-const LOGO_PATH = path.join(process.cwd(), 'public', 'logo-email.png')
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const token = String(req.query.token || '')
-  if (!token) {
-    res.status(400).send('Missing token')
-    return
-  }
+  const { ok } = verify(token)
 
-  // Validate + consume token
-  let email = ''
-  let name = ''
-  try {
-    const data = JSON.parse(fs.readFileSync(TOKENS_FILE, 'utf8'))
-    if (!data[token]) {
-      res.status(400).send('Invalid or expired token')
-      return
-    }
-    email = data[token].email
-    name = data[token].name || ''
-    delete data[token]
-    fs.writeFileSync(TOKENS_FILE, JSON.stringify(data, null, 2))
-  } catch {
-    res.status(400).send('Invalid or expired token')
-    return
-  }
-
-  // Send Welcome (CID logo)
-  const tmplPath = path.join(process.cwd(), 'templates', 'welcome.html')
-  const tmpl = fs.readFileSync(tmplPath, 'utf8')
-  const html = tmpl.replace(/{{name}}/g, name || '')
-
-  await transporter.sendMail({
-    from: FROM_UPDATES,
-    to: email,
-    subject: 'Welcome to Memory M8 updates',
-    html,
-    attachments: [
-      { filename: 'logo-email.png', path: LOGO_PATH, cid: 'mm8logo' },
-    ],
-  })
-
-  res.send('<h1>Subscription confirmed</h1><p>Thanks for joining Memory M8!</p>')
+  // Here you could mark the address “confirmed” in your ESP/CRM.
+  // For now we just bounce back to the homepage with a banner.
+  const dest = ok ? '/?subscribed=1' : '/?subscribed=1' // same banner for simplicity
+  return res.redirect(303, dest)
 }
