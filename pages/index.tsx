@@ -182,7 +182,7 @@ export default function Home() {
                   <img
                     src="/families.jpg"
                     alt="Reassurance at home with subtle phone prompt and TV reminder"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain p-1 sm:p-2"
                     loading="lazy"
                     decoding="async"
                     sizes="(min-width: 768px) 768px, 100vw"
@@ -202,7 +202,7 @@ export default function Home() {
                   <img
                     src="/care-homes.jpg"
                     alt="Care home dashboard highlighting residents who need attention"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain p-1 sm:p-2"
                     loading="lazy"
                     decoding="async"
                     sizes="(min-width: 768px) 768px, 100vw"
@@ -223,7 +223,7 @@ export default function Home() {
                   <img
                     src="/hospital-wards.jpg"
                     alt="Nurse station ward view with prioritised patient alerts and multilingual reassurance"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain p-1 sm:p-2"
                     loading="lazy"
                     decoding="async"
                     sizes="(min-width: 768px) 768px, 100vw"
