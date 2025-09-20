@@ -18,7 +18,7 @@ function createTransporter() {
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT || 587),
-    secure: String(process.env.SMTP_SECURE) === 'true', // true: 465 SSL, false: 587 STARTTLS
+    secure: String(process.env.SMTP_SECURE) === 'true',
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
     tls: process.env.NODE_ENV !== 'production' ? { rejectUnauthorized: false } : undefined,
   })
@@ -56,43 +56,72 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).end('Method Not Allowed')
   }
 
+  const debug = req.query.debug === '1' || req.headers['x-debug'] === '1'
+
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body
     const { name = '', email = '', role = '', org = '' } = body || {}
-    if (!email) return redirect(res, 'missing_email')
+    if (!email) {
+      return debug
+        ? res.status(400).json({ ok: false, error: 'Email required' })
+        : redirect(res, 'missing_email')
+    }
 
     // Build token & confirm URL
     const token = signToken(email, name)
     const confirmUrl = `${SITE_URL}/api/confirm?token=${encodeURIComponent(token)}`
 
     // Internal notification
-    await transporter.sendMail({
-      from: FROM_UPDATES,
-      to: TO_JOIN,
-      subject: `New sign-up: ${email}`,
-      text: `${name || 'Someone'} signed up${role ? ` as ${role}` : ''}${org ? ` (${org})` : ''}`,
-    })
+    let internalInfo: any = null
+    try {
+      internalInfo = await transporter.sendMail({
+        from: FROM_UPDATES,
+        to: TO_JOIN,
+        subject: `New sign-up: ${email}`,
+        text: `${name || 'Someone'} signed up${role ? ` as ${role}` : ''}${org ? ` (${org})` : ''}`,
+      })
+    } catch (e: any) {
+      if (debug) return res.status(500).json({ ok: false, stage: 'internal_notify', error: e?.message || String(e) })
+      throw e
+    }
 
-    // Load template or fallback inline
+    // Template (fallback inline)
     const tmplPath = path.join(process.cwd(), 'templates', 'confirm.html')
     const baseHtml = fs.existsSync(tmplPath)
       ? fs.readFileSync(tmplPath, 'utf8')
       : `<p>Hello {{name}},</p><p>Please confirm your subscription:</p><p><a href="{{confirmUrl}}">Confirm</a></p>`
+
     const html = baseHtml
       .replace(/{{name}}/g, name || '')
       .replace(/{{confirmUrl}}/g, confirmUrl)
 
-    // Confirmation email
-    await transporter.sendMail({
-      from: FROM_UPDATES,
-      to: email,
-      subject: 'Please confirm your Memory M8 subscription',
-      html,
-      attachments: [{ filename: 'logo-email.png', path: LOGO_PATH, cid: 'mm8logo' }],
-    })
+    // Confirmation email to user
+    let userInfo: any = null
+    try {
+      userInfo = await transporter.sendMail({
+        from: FROM_UPDATES,
+        to: email,
+        subject: 'Please confirm your Memory M8 subscription',
+        html,
+        attachments: [{ filename: 'logo-email.png', path: LOGO_PATH, cid: 'mm8logo' }],
+      })
+    } catch (e: any) {
+      if (debug) return res.status(500).json({ ok: false, stage: 'user_mail', error: e?.message || String(e) })
+      throw e
+    }
+
+    if (debug) {
+      return res.status(200).json({
+        ok: true,
+        confirmUrl,
+        internalInfo,
+        userInfo,
+      })
+    }
 
     return redirect(res, 'subscribed')
-  } catch (err) {
+  } catch (err: any) {
+    if (debug) return res.status(500).json({ ok: false, error: err?.message || String(err) })
     console.error('subscribe error', err)
     return redirect(res, 'email_failed')
   }
