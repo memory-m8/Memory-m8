@@ -1,46 +1,31 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import crypto from 'crypto'
+import jwt from 'jsonwebtoken'
 
+const SITE_URL = (process.env.SITE_URL || 'https://www.memorym8.com').replace(/\/+$/, '')
 const TOKEN_SECRET = process.env.TOKEN_SECRET || 'dev-secret-change-me'
 
-function b64urlDecode(s: string) {
-  s = s.replace(/-/g, '+').replace(/_/g, '/')
-  while (s.length % 4) s += '='
-  return Buffer.from(s, 'base64').toString('utf8')
-}
-function verifyToken(token: string) {
-  const [h, p, s] = token.split('.')
-  if (!h || !p || !s) throw new Error('Bad token')
-  const calc = crypto
-    .createHmac('sha256', TOKEN_SECRET)
-    .update(`${h}.${p}`)
-    .digest('base64')
-    .replace(/=/g, '')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-  if (calc !== s) throw new Error('Bad signature')
-  const payload = JSON.parse(b64urlDecode(p))
-  if (payload.exp && Date.now() / 1000 > payload.exp) throw new Error('Expired')
-  return payload as { email: string; name?: string }
-}
-function redirect(res: NextApiResponse, key: string) {
-  res.writeHead(303, { Location: `/?${key}=1` })
-  res.end()
-}
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const debug = req.query.debug === '1' || req.headers['x-debug'] === '1'
+  const debug = 'debug' in req.query
+  const tokenRaw = String(req.query.token || '')
+  const token = tokenRaw.trim().replace(/\s+/g, '') // guard against copied spaces/newlines
+
+  if (!token) {
+    if (debug) return res.status(400).json({ ok: false, error: 'Missing token' })
+    return res.redirect(303, '/?confirm=missing')
+  }
+
   try {
-    const token = String(req.query.token || '')
-    if (!token) {
-      return debug ? res.status(400).json({ ok: false, error: 'Missing token' }) : redirect(res, 'confirm_error')
+    const payload = jwt.verify(token, TOKEN_SECRET) as { email: string; name?: string; iat: number; exp: number }
+    // If you want to record the confirmed email somewhere, do it here.
+
+    if (debug) {
+      return res.status(200).json({ ok: true, verifyResult: true, payload, SITE_URL, TOKEN_SECRET_len: TOKEN_SECRET.length })
     }
-    const payload = verifyToken(token)
-    if (debug) return res.status(200).json({ ok: true, payload })
-    return redirect(res, 'confirmed')
+    return res.redirect(303, '/?confirmed=1')
   } catch (err: any) {
-    if (debug) return res.status(400).json({ ok: false, error: err?.message || String(err) })
-    console.error('confirm error', err)
-    return redirect(res, 'confirm_error')
+    if (debug) {
+      return res.status(400).json({ ok: false, error: String(err?.message || err) })
+    }
+    return res.redirect(303, '/?confirm=bad')
   }
 }
