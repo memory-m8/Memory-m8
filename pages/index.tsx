@@ -41,7 +41,7 @@ export default function Home() {
         <title>Memory M8 — Companionship, Dignity & Support</title>
         <meta
           name="description"
-          content="AI-powered reassurance for families, care homes and hospital wards. Multilingual, dignity-first, nurse prioritisation, and zero-knowledge patient privacy."
+          content="AI-powered reassurance for families, care homes and hospital wards. Multilingual, dignity-first support with nurse prioritisation and zero-knowledge patient privacy."
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {/* no <link rel="icon"> here (SSR fix) */}
@@ -67,9 +67,7 @@ export default function Home() {
               </span>
               <strong className="tracking-wide">Beta testing</strong> starts next week — join the waitlist below
             </span>
-
             <span className="hidden md:inline-block opacity-70">•</span>
-
             <span className="inline-flex items-center gap-2">
               <img src="/google-play-badge.png" alt="Google Play" className="h-7 md:h-8" />
               <span className="opacity-95">Coming soon to Google Play</span>
@@ -132,7 +130,7 @@ export default function Home() {
                 <p className="mt-5 text-lg text-slate-700">Companionship, Dignity &amp; Support — Powered by AI.</p>
                 <p className="mt-4 text-slate-600">
                   Memory M8 reassures families, supports carers, and prioritises nurse attention for those living with memory loss.
-                  Multilingual, dignity-first, and privacy by design. <strong>All patient-side features are zero-knowledge by default.</strong>
+                  Multilingual, dignity-first, and privacy by design. <strong>All patient-side features are zero-knowledge by default</strong> — we can’t read conversations or private notes.
                 </p>
                 <div className="mt-8 flex flex-wrap items-center gap-4">
                   <a href="#signup" className="inline-flex items-center rounded-xl bg-sky-600 px-5 py-3 text-white font-medium hover:bg-sky-700 shadow">
@@ -145,7 +143,7 @@ export default function Home() {
                 <div className="mt-6 flex items-center gap-3 text-xs text-slate-600">
                   <span className="px-3 py-1 rounded-full bg-white border">GDPR</span>
                   <span className="px-3 py-1 rounded-full bg-white border">ICO</span>
-                  <span className="px-3 py-1 rounded-full bg-white border">Zero-knowledge by default</span>
+                  <a href="/ai-privacy" className="px-3 py-1 rounded-full bg-white border hover:bg-slate-50">Zero-knowledge by default</a>
                 </div>
               </div>
 
@@ -178,6 +176,7 @@ export default function Home() {
             </p>
 
             <div className="mt-10 space-y-10">
+              {/* Families */}
               <article className="rounded-2xl border p-6 bg-white" id="families-card">
                 <div className="aspect-[16/9] rounded-xl bg-slate-100 overflow-hidden mb-5">
                   <img
@@ -192,13 +191,12 @@ export default function Home() {
                 <h3 className="text-2xl font-semibold text-slate-900">For Families</h3>
                 <p className="mt-3 text-slate-600 text-lg">
                   Check a loved one’s mood at a glance and use <strong>Whisper Mode</strong> for discreet cues that don’t startle — for example,
-                  quietly reminding who just walked into the room to protect dignity and ease conversation.
-                  The companion keeps chat familiar using favourite topics, photos and memories. It can also
-                  remind about preferred TV/radio and, when enabled, <strong>turn the TV on and switch to the right channel</strong>,
-                  or dim lights for a gentle bedtime routine.
+                  gently reminding who just walked into the room to protect dignity and ease conversation. The companion keeps chat familiar using
+                  favourite topics, photos and memories. It can also remind about preferred TV/radio and, when enabled, <strong>turn the TV on and switch to the correct channel</strong> or dim lights for a gentle routine.
                 </p>
               </article>
 
+              {/* Care homes & mobile carers */}
               <article className="rounded-2xl border p-6 bg-white" id="care">
                 <div className="aspect-[16/9] rounded-xl bg-slate-100 overflow-hidden mb-5">
                   <img
@@ -210,14 +208,16 @@ export default function Home() {
                     sizes="(min-width: 768px) 768px, 100vw"
                   />
                 </div>
-                <h3 className="text-2xl font-semibold text-slate-900">For Care Homes</h3>
+                <h3 className="text-2xl font-semibold text-slate-900">For Care Homes & Mobile Carers</h3>
                 <p className="mt-3 text-slate-600 text-lg">
-                  Resident wellbeing dashboards surface who needs attention first, reducing anxiety-driven callouts so staff can focus
-                  where it matters most. Alerts flag when reassurance or intervention is needed — in a room or during activities —
-                  balancing compassionate human care with real-time AI support that preserves dignity and reduces disruption.
+                  Resident wellbeing dashboards surface who needs attention first, reducing anxiety-driven callouts so staff can focus where it
+                  matters most. Alerts flag when reassurance or intervention is needed — in a room or during activities — balancing compassionate
+                  human care with real-time AI support that preserves dignity and reduces disruption. <strong>Mobile carers</strong> can manage
+                  multiple patients on the go with quick glanceable mood, recent prompts and priority alerts between visits.
                 </p>
               </article>
 
+              {/* Hospitals */}
               <article className="rounded-2xl border p-6 bg-white" id="hospitals">
                 <div className="aspect-[16/9] rounded-xl bg-slate-100 overflow-hidden mb-5">
                   <img
@@ -232,8 +232,8 @@ export default function Home() {
                 <h3 className="text-2xl font-semibold text-slate-900">For Hospital Wards</h3>
                 <p className="mt-3 text-slate-600 text-lg">
                   Real-time ward views flag mood change, confusion or distress. Nurse prioritisation directs attention to patients who need it most,
-                  supporting efficient, compassionate care. Multilingual reassurance helps overcome language barriers and delivers calm,
-                  personalised messages that keep patients grounded in busy clinical environments.
+                  supporting efficient, compassionate care. Multilingual reassurance helps overcome language barriers and delivers calm, personalised
+                  messages that keep patients grounded in busy clinical environments.
                 </p>
               </article>
             </div>
@@ -360,7 +360,7 @@ export default function Home() {
                   <button type="submit" className="mt-4 inline-flex items-center rounded-xl bg-sky-600 px-5 py-3 text-white font-medium hover:bg-sky-700 shadow">
                     Notify me
                   </button>
-                  <p className="mt-3 text-xs text-slate-500">We respect your privacy. See our Privacy Policy.</p>
+                  <p className="mt-3 text-xs text-slate-500">We respect your privacy. See our <a className="underline hover:no-underline" href="/privacy">Privacy Policy</a>.</p>
                 </div>
               </form>
             </div>
@@ -431,6 +431,7 @@ export default function Home() {
               <a className="hover:underline" href="/privacy">Privacy Policy</a>
               <a className="hover:underline" href="/terms">Terms</a>
               <a className="hover:underline" href="/cookies">Cookies</a>
+              <a className="hover:underline" href="/ai-privacy">AI &amp; Zero-Knowledge</a>
             </div>
           </div>
         </div>
@@ -441,20 +442,18 @@ export default function Home() {
 
 const features = [
   { title: 'Mood tracking', text: 'Gentle, always-on insights for peace of mind.' },
-  { title: 'Dignity-first reassurance', text: 'Language and prompts tuned for adults — never infantilising.' },
+  { title: 'Whisper Mode', text: 'Discreet, dignity-preserving reminders — e.g., who has entered the room.' },
   { title: 'Nurse prioritisation', text: 'Direct attention to where it’s needed most across wards.' },
   { title: 'Multilingual companion', text: 'Welsh, Polish, Urdu, Punjabi, Arabic, Romanian, Spanish and more.' },
-  { title: 'Smart integrations', text: 'TV/radio reminders; optional control to turn on the TV and switch to the right channel; lights and routines.' },
-  { title: 'Zero-knowledge privacy', text: 'Patient-side data is end-to-end encrypted; we can’t read your conversations.' },
+  { title: 'Smart integrations', text: 'TV/radio reminders, turn on and switch to the right channel, smart lights.' },
+  { title: 'Zero-knowledge privacy', text: 'Patient-side data is end-to-end encrypted; we can’t read conversations or notes.' },
 ]
 
 const faq = [
-  { q: 'Is Memory M8 safe and private?', a: 'Yes. We follow GDPR/ICO with data minimisation and end-to-end encryption. Patient-side is zero-knowledge by default.' },
-  { q: 'How does it reduce anxiety for families?', a: 'Glanceable wellbeing, Whisper Mode for discreet cues, and quick voice/video reassurance so you can stay focused at work.' },
-  { q: 'How does it help care homes?', a: 'Dashboards surface who needs attention first, reducing anxiety-driven callouts and enabling more meaningful, timely care.' },
+  { q: 'Is Memory M8 safe and private?', a: 'Yes. We follow GDPR/ICO with data minimisation and end-to-end encryption. Patient-side features operate under zero-knowledge by default — we cannot read conversations or notes.' },
+  { q: 'What is Whisper Mode?', a: 'A calming, low-volume cue used for discreet reminders (e.g., who is in the room) that preserves dignity and avoids startle.' },
+  { q: 'How does it reduce anxiety for families?', a: 'Glanceable wellbeing, Whisper Mode for calm cues, and quick voice/video reassurance so you can stay focused at work.' },
+  { q: 'How does it help care homes and mobile carers?', a: 'Dashboards surface who needs attention first, and mobile carers can manage multiple patients with glanceable mood and priority alerts between visits.' },
   { q: 'Does this work on hospital wards?', a: 'Yes. Real-time ward views flag mood/confusion to support nurse prioritisation while preserving dignity.' },
-  { q: 'Which languages are supported?', a: 'Welsh and English at launch; expanding to Polish, Urdu, Punjabi, Arabic, Romanian, Spanish and more.' },
-  { q: 'What is Whisper Mode?', a: 'A calm, low-volume prompt that discreetly reassures — including reminding who entered the room — to protect dignity without startling.' },
-  { q: 'Can it control media or devices?', a: 'Yes — reminders for favourite TV/radio and optional controls to turn on the TV and switch to the right channel, plus smart-light routines.' },
-  { q: 'How does the AI learn safely?', a: 'It adapts to patterns in routines, mood and responses, keeping a minimal profile used only for reassurance and reminders.' },
+  { q: 'Can it control devices and media?', a: 'Yes — reminders for favourite TV/radio, and when enabled it can turn the TV on and switch to the right channel, plus dim lights and gentle bedtime routines.' },
 ]
